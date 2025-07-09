@@ -7,12 +7,29 @@ import java.util.Scanner;
  * This class provides a console-based interface for accessing all modules.
  */
 public class Main {
+    private static ExpenditureMenu expenditureMenu;
+    private static CategoryMenu categoryMenu;
+    private static AccountMenu accountMenu;
+    private static SearchSortMenu searchSortMenu;
+    private static ReceiptMenu receiptMenu;
+    private static BankTrackerMenu bankTrackerMenu;
+    private static FinancialAnalysisMenu financialAnalysisMenu;
     
     public static void main(String[] args) {
         System.out.println("🏗️ Construction Finance Tracker");
         System.out.println("=================================");
         
         Scanner scanner = new Scanner(System.in);
+        
+        // Initialize menu handlers
+        expenditureMenu = new ExpenditureMenu(scanner);
+        categoryMenu = new CategoryMenu(scanner);
+        accountMenu = new AccountMenu(scanner);
+        searchSortMenu = new SearchSortMenu(scanner);
+        receiptMenu = new ReceiptMenu(scanner);
+        bankTrackerMenu = new BankTrackerMenu(scanner);
+        financialAnalysisMenu = new FinancialAnalysisMenu(scanner);
+        
         boolean running = true;
         
         while (running) {
@@ -21,25 +38,25 @@ public class Main {
             
             switch (choice) {
                 case 1:
-                    System.out.println("📊 Expenditure Management - Coming Soon!");
+                    expenditureMenu.showMenu();
                     break;
                 case 2:
-                    System.out.println("📁 Category Management - Coming Soon!");
+                    categoryMenu.showMenu();
                     break;
                 case 3:
-                    System.out.println("🏦 Bank Account Management - Coming Soon!");
+                    accountMenu.showMenu();
                     break;
                 case 4:
-                    System.out.println("🔍 Search & Sort - Coming Soon!");
+                    searchSortMenu.showMenu();
                     break;
                 case 5:
-                    System.out.println("🧾 Receipt Handling - Coming Soon!");
+                    receiptMenu.showMenu();
                     break;
                 case 6:
-                    System.out.println("📈 Bank Tracker - Coming Soon!");
+                    bankTrackerMenu.showMenu();
                     break;
                 case 7:
-                    System.out.println("📊 Financial Analysis - Coming Soon!");
+                    financialAnalysisMenu.showMenu();
                     break;
                 case 0:
                     running = false;
