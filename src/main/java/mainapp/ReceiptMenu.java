@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import expenditures.ExpenditureManager;
+
 /**
  * Menu handler for Receipt Management functionality.
  */
@@ -204,11 +206,13 @@ public class ReceiptMenu {
     private void validateReceipt() {
         System.out.print("Enter receipt ID to validate: ");
         String receiptId = scanner.nextLine();
-        
+
         System.out.print("Enter expenditure ID to link: ");
         String expenditureId = scanner.nextLine();
-        
-        if (receiptManager.validateReceipt(receiptId, expenditureId)) {
+
+        ExpenditureManager expManager = new ExpenditureManager();
+
+        if (receiptManager.validateReceipt(receiptId, expenditureId, expManager)) {
             System.out.println("Receipt validated and linked to expenditure!");
         } else {
             System.out.println("Receipt not found.");

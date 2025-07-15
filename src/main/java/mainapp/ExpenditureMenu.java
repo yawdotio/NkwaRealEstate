@@ -14,8 +14,12 @@ import java.util.*;
  */
 public class ExpenditureMenu {
     private ExpenditureManager expenditureManager;
+    
+    @SuppressWarnings("unused")
     private AccountManager accountManager;
+    @SuppressWarnings("unused")
     private CategoryManager categoryManager;
+    
     private Scanner scanner;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     

@@ -44,6 +44,16 @@ public class ExpenditureManager {
     public Collection<Expenditure> getAllExpenditures() {
         return expenditures.values();
     }
+
+     /**
+     * Checks if an expenditure ID exists.
+     * ADDITION TO KEREN'S EXPENDITURE MAMAGER BY RECEIPT MANAGER (NAA SHIDAA)
+     */
+    public boolean expenditureExists(String expenditureId) {
+        return expenditures.containsKey(expenditureId);
+    }
+
+
     
     /**
      * Returns expenditure history (most recent first).
@@ -164,6 +174,9 @@ public class ExpenditureManager {
         }
     }
     
+   
+
+
     /**
      * Parses a line from the file into an Expenditure object.
      * Format: expenditureId,description,amount,date,accountId,categoryId,vendor,projectId

@@ -1,3 +1,1 @@
-# Receipts data file
-# Format: receiptId,receiptNumber,receiptDate,amount,vendor,description,expenditureId,status,filePath
-# Example: REC001,12345,2024-01-15,125.50,Staples,Office supplies purchase,EXP001,VALIDATED,/receipts/staples_12345.pdf
+123,1,2025-07-14,300,Naa Shidaa,The first test receipt of 300 amount on the 14th of July 2025 by Naa Shidaa the Vendor,EXP456,VALIDATED,receipts/inv100.pdf
