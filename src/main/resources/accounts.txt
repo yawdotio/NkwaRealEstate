@@ -1,3 +1,2 @@
-# Accounts data file
-# Format: accountId,accountName,accountType,balance,bankName
 # Example: ACC001,Main Business Account,Checking,15000.00,Chase Bank
+ACC002,High Balance,Savings,5000.00,Test Bank

@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import expenditures.ExpenditureManager;
+
 /**
  * Manages receipts using Queue for processing workflow.
  * Handles receipt validation, processing, and persistence.
@@ -83,9 +85,9 @@ public class ReceiptManager {
     /**
      * Validates a receipt against an expenditure.
      */
-    public boolean validateReceipt(String receiptId, String expenditureId) {
+    public boolean validateReceipt(String receiptId, String expenditureId, ExpenditureManager expManager) {
         Receipt receipt = receipts.get(receiptId);
-        if (receipt != null) {
+        if (receipt != null && expManager.expenditureExists(expenditureId)) {
             receipt.setExpenditureId(expenditureId);
             receipt.setStatus(Receipt.ReceiptStatus.VALIDATED);
             processingQueue.remove(receipt);
@@ -239,3 +241,4 @@ public class ReceiptManager {
                            receipt.getFilePath());
     }
 }
+
