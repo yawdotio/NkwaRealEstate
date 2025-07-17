@@ -8,7 +8,7 @@ import java.time.LocalDate;
  */
 public class SearchCriteria {
     private String description;
-    private String vendor;
+    private String Phase;
     private BigDecimal minAmount;
     private BigDecimal maxAmount;
     private LocalDate startDate;
@@ -24,8 +24,8 @@ public class SearchCriteria {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     
-    public String getVendor() { return vendor; }
-    public void setVendor(String vendor) { this.vendor = vendor; }
+    public String getPhase() { return Phase; }
+    public void setPhase(String Phase) { this.Phase = Phase; }
     
     public BigDecimal getMinAmount() { return minAmount; }
     public void setMinAmount(BigDecimal minAmount) { this.minAmount = minAmount; }
@@ -51,8 +51,8 @@ public class SearchCriteria {
         return this;
     }
     
-    public SearchCriteria withVendor(String vendor) {
-        this.vendor = vendor;
+    public SearchCriteria withPhase(String Phase) {
+        this.Phase = Phase;
         return this;
     }
     
@@ -80,7 +80,7 @@ public class SearchCriteria {
     
     @Override
     public String toString() {
-        return String.format("SearchCriteria{description='%s', vendor='%s', minAmount=%s, maxAmount=%s, startDate=%s, endDate=%s, categoryId='%s', accountId='%s'}", 
-                           description, vendor, minAmount, maxAmount, startDate, endDate, categoryId, accountId);
+        return String.format("SearchCriteria{description='%s', Phase='%s', minAmount=%s, maxAmount=%s, startDate=%s, endDate=%s, categoryId='%s', accountId='%s'}", 
+                           description, Phase, minAmount, maxAmount, startDate, endDate, categoryId, accountId);
     }
 }

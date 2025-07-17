@@ -149,7 +149,7 @@ public class ExpenditureService {
         String receiptNumber = "R" + System.currentTimeMillis();
         
         // Use expenditure details to create the receipt
-        String vendor = "Unknown"; // Default vendor - could be extracted from category or phase
+        String Phase = "Unknown"; // Default Phase - could be extracted from category or phase
         String description = expenditure.getCategory() + " - " + expenditure.getPhase();
         
         // Create the receipt with PENDING status initially
@@ -158,7 +158,7 @@ public class ExpenditureService {
             receiptNumber,
             expenditure.getDate(),
             expenditure.getAmount(),
-            vendor,
+            Phase,
             description,
             expenditure.getCode(), // Link to expenditure
             Receipt.ReceiptStatus.PENDING,

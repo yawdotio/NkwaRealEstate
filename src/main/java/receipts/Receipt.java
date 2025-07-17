@@ -11,7 +11,7 @@ public class Receipt {
     private String receiptNumber;
     private Date receiptDate;
     private double amount;
-    private String vendor;
+    private String Phase;
     private String description;
     private String expenditureId;
     private ReceiptStatus status;
@@ -22,12 +22,12 @@ public class Receipt {
     }
     
     public Receipt(String receiptId, String receiptNumber, Date receiptDate, double amount, 
-                  String vendor, String description, String expenditureId, ReceiptStatus status, String filePath) {
+                  String Phase, String description, String expenditureId, ReceiptStatus status, String filePath) {
         this.receiptId = receiptId;
         this.receiptNumber = receiptNumber;
         this.receiptDate = receiptDate;
         this.amount = amount;
-        this.vendor = vendor;
+        this.Phase = Phase;
         this.description = description;
         this.expenditureId = expenditureId;
         this.status = status;
@@ -47,8 +47,8 @@ public class Receipt {
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
     
-    public String getVendor() { return vendor; }
-    public void setVendor(String vendor) { this.vendor = vendor; }
+    public String getPhase() { return Phase; }
+    public void setPhase(String Phase) { this.Phase = Phase; }
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -77,7 +77,7 @@ public class Receipt {
     
     @Override
     public String toString() {
-        return String.format("Receipt{id='%s', number='%s', date=%s, amount=%.2f, vendor='%s', status=%s}", 
-                           receiptId, receiptNumber, receiptDate, amount, vendor, status);
+        return String.format("Receipt{id='%s', number='%s', date=%s, amount=%.2f, Phase='%s', status=%s}", 
+                           receiptId, receiptNumber, receiptDate, amount, Phase, status);
     }
 }

@@ -122,12 +122,12 @@ public class ReceiptManager {
     }
     
     /**
-     * Gets receipts by vendor.
+     * Gets receipts by Phase.
      */
-    public List<Receipt> getReceiptsByVendor(String vendor) {
+    public List<Receipt> getReceiptsByPhase(String Phase) {
         List<Receipt> result = new ArrayList<>();
         for (Receipt receipt : receipts.values()) {
-            if (vendor.equalsIgnoreCase(receipt.getVendor())) {
+            if (Phase.equalsIgnoreCase(receipt.getPhase())) {
                 result.add(receipt);
             }
         }
@@ -192,7 +192,7 @@ public class ReceiptManager {
     
     /**
      * Parses a line from the file into a Receipt object.
-     * Format: receiptId,receiptNumber,receiptDate,amount,vendor,description,expenditureId,status,filePath
+     * Format: receiptId,receiptNumber,receiptDate,amount,Phase,description,expenditureId,status,filePath
      */
     private Receipt parseReceipt(String line) {
         try {
@@ -202,7 +202,7 @@ public class ReceiptManager {
                 String receiptNumber = parts[1].trim();
                 Date receiptDate = DATE_FORMAT.parse(parts[2].trim());
                 double amount = Double.parseDouble(parts[3].trim());
-                String vendor = parts[4].trim();
+                String Phase = parts[4].trim();
                 String description = parts[5].trim();
                 String expenditureId = parts[6].trim();
                 Receipt.ReceiptStatus status = Receipt.ReceiptStatus.valueOf(parts[7].trim());
@@ -213,7 +213,7 @@ public class ReceiptManager {
                     expenditureId = null;
                 }
                 
-                return new Receipt(receiptId, receiptNumber, receiptDate, amount, vendor, description, expenditureId, status, filePath);
+                return new Receipt(receiptId, receiptNumber, receiptDate, amount, Phase, description, expenditureId, status, filePath);
             }
         } catch (Exception e) {
             System.err.println("Error parsing receipt line: " + line);
@@ -231,7 +231,7 @@ public class ReceiptManager {
                            receipt.getReceiptNumber(),
                            DATE_FORMAT.format(receipt.getReceiptDate()),
                            String.valueOf(receipt.getAmount()),
-                           receipt.getVendor(),
+                           receipt.getPhase(),
                            receipt.getDescription(),
                            expenditureId,
                            receipt.getStatus().name(),

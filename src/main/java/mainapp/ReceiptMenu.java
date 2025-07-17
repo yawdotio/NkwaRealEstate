@@ -47,7 +47,7 @@ public class ReceiptMenu {
                     rejectReceipt();
                     break;
                 case 8:
-                    viewReceiptsByVendor();
+                    viewReceiptsByPhase();
                     break;
                 case 0:
                     running = false;
@@ -72,7 +72,7 @@ public class ReceiptMenu {
         System.out.println("5. Process Next Receipt");
         System.out.println("6. Validate Receipt");
         System.out.println("7. Reject Receipt");
-        System.out.println("8. View Receipts by Vendor");
+        System.out.println("8. View Receipts by Phase");
         System.out.println("0. Back to Main Menu");
         System.out.print("Enter your choice: ");
     }
@@ -92,8 +92,8 @@ public class ReceiptMenu {
         System.out.print("Enter amount: ");
         double amount = getDoubleInput();
         
-        System.out.print("Enter vendor: ");
-        String vendor = scanner.nextLine();
+        System.out.print("Enter Phase: ");
+        String Phase = scanner.nextLine();
         
         System.out.print("Enter description: ");
         String description = scanner.nextLine();
@@ -101,7 +101,7 @@ public class ReceiptMenu {
         System.out.print("Enter file path (optional): ");
         String filePath = scanner.nextLine();
         
-        Receipt receipt = new Receipt(id, receiptNumber, date, amount, vendor, 
+        Receipt receipt = new Receipt(id, receiptNumber, date, amount, Phase, 
                                     description, null, Receipt.ReceiptStatus.PENDING, filePath);
         receiptManager.addReceipt(receipt);
         
@@ -221,16 +221,16 @@ public class ReceiptMenu {
         System.out.println("Receipt rejected.");
     }
     
-    private void viewReceiptsByVendor() {
-        System.out.print("Enter vendor name: ");
-        String vendor = scanner.nextLine();
+    private void viewReceiptsByPhase() {
+        System.out.print("Enter Phase name: ");
+        String Phase = scanner.nextLine();
         
-        List<Receipt> receipts = receiptManager.getReceiptsByVendor(vendor);
+        List<Receipt> receipts = receiptManager.getReceiptsByPhase(Phase);
         
         if (receipts.isEmpty()) {
-            System.out.println("No receipts found for vendor: " + vendor);
+            System.out.println("No receipts found for Phase: " + Phase);
         } else {
-            System.out.println("\n--- Receipts for Vendor: " + vendor + " ---");
+            System.out.println("\n--- Receipts for Phase: " + Phase + " ---");
             for (Receipt receipt : receipts) {
                 System.out.println(receipt);
             }

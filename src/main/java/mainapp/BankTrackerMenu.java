@@ -95,7 +95,7 @@ public class BankTrackerMenu {
         } else {
             System.out.println("\n--- Lowest Balance Account ---");
             System.out.println(account);
-            System.out.println("Balance: $" + account.getBalance());
+            System.out.println("Balance: GHc" + account.getBalance());
         }
     }
     
@@ -130,7 +130,7 @@ public class BankTrackerMenu {
         BigDecimal threshold = getBigDecimalInput();
         
         bankTracker.setAlertThreshold(accountId, threshold);
-        System.out.println("Alert threshold set for account " + accountId + ": $" + threshold);
+        System.out.println("Alert threshold set for account " + accountId + ": GHc" + threshold);
     }
     
     private void viewAccountsBelowThreshold() {
@@ -200,10 +200,10 @@ public class BankTrackerMenu {
         
         System.out.println("\n--- Balance Statistics ---");
         System.out.println("Number of Accounts: " + stats.getAccountCount());
-        System.out.println("Minimum Balance: $" + stats.getMinBalance());
-        System.out.println("Maximum Balance: $" + stats.getMaxBalance());
-        System.out.println("Average Balance: $" + stats.getAverageBalance());
-        System.out.println("Total Balance: $" + bankTracker.getTotalBalance());
+        System.out.println("Minimum Balance: GHc" + stats.getMinBalance());
+        System.out.println("Maximum Balance: GHc" + stats.getMaxBalance());
+        System.out.println("Average Balance: GHc" + stats.getAverageBalance());
+        System.out.println("Total Balance: GHc" + bankTracker.getTotalBalance());
     }
     
     private void refreshTracker() {

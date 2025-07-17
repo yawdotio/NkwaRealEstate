@@ -36,7 +36,7 @@ public class FinancialAnalysisMenu {
                     analyzeByCategoryIds();
                     break;
                 case 4:
-                    analyzeByVendor();
+                    analyzeByPhase();
                     break;
                 case 5:
                     projectFutureSpending();
@@ -72,7 +72,7 @@ public class FinancialAnalysisMenu {
         System.out.println("1. Calculate Burn Rate");
         System.out.println("2. Analyze Monthly Spending");
         System.out.println("3. Analyze by Category");
-        System.out.println("4. Analyze by Vendor");
+        System.out.println("4. Analyze by Phase");
         System.out.println("5. Project Future Spending");
         System.out.println("6. Calculate Budget Variance");
         System.out.println("7. Analyze Trends");
@@ -95,9 +95,9 @@ public class FinancialAnalysisMenu {
         
         System.out.println("\n--- Burn Rate Analysis ---");
         System.out.println("Period: " + DATE_FORMAT.format(startDate) + " to " + DATE_FORMAT.format(endDate));
-        System.out.println("Daily Burn Rate: $" + String.format("%.2f", burnRate));
-        System.out.println("Weekly Burn Rate: $" + String.format("%.2f", burnRate * 7));
-        System.out.println("Monthly Burn Rate: $" + String.format("%.2f", burnRate * 30));
+        System.out.println("Daily Burn Rate: GHc" + String.format("%.2f", burnRate));
+        System.out.println("Weekly Burn Rate: GHc" + String.format("%.2f", burnRate * 7));
+        System.out.println("Monthly Burn Rate: GHc" + String.format("%.2f", burnRate * 30));
     }
     
     private void analyzeMonthlySpending() {
@@ -116,13 +116,13 @@ public class FinancialAnalysisMenu {
         double yearTotal = 0.0;
         
         for (Map.Entry<String, Double> entry : monthlySpending.entrySet()) {
-            System.out.println(entry.getKey() + ": $" + String.format("%.2f", entry.getValue()));
+            System.out.println(entry.getKey() + ": GHc" + String.format("%.2f", entry.getValue()));
             yearTotal += entry.getValue();
         }
         
-        System.out.println("Total for " + year + ": $" + String.format("%.2f", yearTotal));
+        System.out.println("Total for " + year + ": GHc" + String.format("%.2f", yearTotal));
         double avgMonthly = yearTotal / 12.0;
-        System.out.println("Average Monthly: $" + String.format("%.2f", avgMonthly));
+        System.out.println("Average Monthly: GHc" + String.format("%.2f", avgMonthly));
     }
     
     private void analyzeByCategoryIds() {
@@ -136,9 +136,9 @@ public class FinancialAnalysisMenu {
             for (Map.Entry<String, CategoryAnalysis> entry : analysis.entrySet()) {
                 CategoryAnalysis catAnalysis = entry.getValue();
                 System.out.println("\nCategory: " + entry.getKey());
-                System.out.println("  Total Amount: $" + String.format("%.2f", catAnalysis.getTotalAmount()));
+                System.out.println("  Total Amount: GHc" + String.format("%.2f", catAnalysis.getTotalAmount()));
                 System.out.println("  Transaction Count: " + catAnalysis.getTransactionCount());
-                System.out.println("  Average Amount: $" + String.format("%.2f", catAnalysis.getAverageAmount()));
+                System.out.println("  Average Amount: GHc" + String.format("%.2f", catAnalysis.getAverageAmount()));
                 System.out.println("  First Transaction: " + (catAnalysis.getFirstTransaction() != null ? 
                     DATE_FORMAT.format(catAnalysis.getFirstTransaction()) : "None"));
                 System.out.println("  Last Transaction: " + (catAnalysis.getLastTransaction() != null ? 
@@ -147,40 +147,39 @@ public class FinancialAnalysisMenu {
         }
     }
     
-    private void analyzeByVendor() {
+    private void analyzeByPhase() {
         Expenditure[] expenditures = getExpenditureArray();
-        // For now, we'll analyze by phase since the new structure doesn't have vendors
+        // For now, we'll analyze by phase since the new structure doesn't have Phases
         // but phases which are similar concept
         System.out.println("\n--- Phase Analysis ---");
-        System.out.println("(Note: Using 'phase' field as it's the closest equivalent to vendor analysis)");
         
-        Map<String, VendorAnalysis> analysis = new HashMap<>();
+        Map<String, PhaseAnalysis> analysis = new HashMap<>();
         
         for (Expenditure exp : expenditures) {
             String phase = exp.getPhase();
-            VendorAnalysis vendorAnalysis = analysis.get(phase);
+            PhaseAnalysis PhaseAnalysis = analysis.get(phase);
             
-            if (vendorAnalysis == null) {
-                vendorAnalysis = new VendorAnalysis(phase);
-                analysis.put(phase, vendorAnalysis);
+            if (PhaseAnalysis == null) {
+                PhaseAnalysis = new PhaseAnalysis(phase);
+                analysis.put(phase, PhaseAnalysis);
             }
             
-            vendorAnalysis.addExpenditure(exp);
+            PhaseAnalysis.addExpenditure(exp);
         }
         
         if (analysis.isEmpty()) {
             System.out.println("No expenditures found for analysis.");
         } else {
-            for (Map.Entry<String, VendorAnalysis> entry : analysis.entrySet()) {
-                VendorAnalysis vendorAnalysis = entry.getValue();
+            for (Map.Entry<String, PhaseAnalysis> entry : analysis.entrySet()) {
+                PhaseAnalysis PhaseAnalysis = entry.getValue();
                 System.out.println("\nPhase: " + entry.getKey());
-                System.out.println("  Total Amount: $" + String.format("%.2f", vendorAnalysis.getTotalAmount()));
-                System.out.println("  Transaction Count: " + vendorAnalysis.getTransactionCount());
-                System.out.println("  Average Amount: $" + String.format("%.2f", vendorAnalysis.getAverageAmount()));
-                System.out.println("  First Transaction: " + (vendorAnalysis.getFirstTransaction() != null ? 
-                    DATE_FORMAT.format(vendorAnalysis.getFirstTransaction()) : "None"));
-                System.out.println("  Last Transaction: " + (vendorAnalysis.getLastTransaction() != null ? 
-                    DATE_FORMAT.format(vendorAnalysis.getLastTransaction()) : "None"));
+                System.out.println("  Total Amount: GHc" + String.format("%.2f", PhaseAnalysis.getTotalAmount()));
+                System.out.println("  Transaction Count: " + PhaseAnalysis.getTransactionCount());
+                System.out.println("  Average Amount: GHc" + String.format("%.2f", PhaseAnalysis.getAverageAmount()));
+                System.out.println("  First Transaction: " + (PhaseAnalysis.getFirstTransaction() != null ? 
+                    DATE_FORMAT.format(PhaseAnalysis.getFirstTransaction()) : "None"));
+                System.out.println("  Last Transaction: " + (PhaseAnalysis.getLastTransaction() != null ? 
+                    DATE_FORMAT.format(PhaseAnalysis.getLastTransaction()) : "None"));
             }
         }
     }
@@ -206,7 +205,7 @@ public class FinancialAnalysisMenu {
         
         System.out.println("\n--- Future Spending Projection ---");
         System.out.println("Based on period: " + DATE_FORMAT.format(startDate) + " to " + DATE_FORMAT.format(endDate));
-        System.out.println("Projected spending for next " + futureDays + " days: $" + String.format("%.2f", projection));
+        System.out.println("Projected spending for next " + futureDays + " days: GHc" + String.format("%.2f", projection));
     }
     
     private void calculateBudgetVariance() {
@@ -225,14 +224,14 @@ public class FinancialAnalysisMenu {
         
         System.out.println("\n--- Budget Variance Results ---");
         System.out.println("Period: " + DATE_FORMAT.format(startDate) + " to " + DATE_FORMAT.format(endDate));
-        System.out.println("Planned Budget: $" + String.format("%.2f", plannedBudget));
-        System.out.println("Actual Spending: $" + String.format("%.2f", plannedBudget + variance));
-        System.out.println("Variance: $" + String.format("%.2f", variance));
+        System.out.println("Planned Budget: GHc" + String.format("%.2f", plannedBudget));
+        System.out.println("Actual Spending: GHc" + String.format("%.2f", plannedBudget + variance));
+        System.out.println("Variance: GHc" + String.format("%.2f", variance));
         
         if (variance > 0.0) {
-            System.out.println("Status: OVER BUDGET by $" + String.format("%.2f", variance));
+            System.out.println("Status: OVER BUDGET by GHc" + String.format("%.2f", variance));
         } else if (variance < 0.0) {
-            System.out.println("Status: UNDER BUDGET by $" + String.format("%.2f", Math.abs(variance)));
+            System.out.println("Status: UNDER BUDGET by GHc" + String.format("%.2f", Math.abs(variance)));
         } else {
             System.out.println("Status: ON BUDGET");
         }
@@ -256,7 +255,7 @@ public class FinancialAnalysisMenu {
         List<Double> weeklySpending = trendAnalysis.getWeeklySpending();
         System.out.println("\nWeekly Spending Breakdown:");
         for (int i = 0; i < weeklySpending.size(); i++) {
-            System.out.println("Week " + (i + 1) + ": $" + String.format("%.2f", weeklySpending.get(i)));
+            System.out.println("Week " + (i + 1) + ": GHc" + String.format("%.2f", weeklySpending.get(i)));
         }
     }
     
@@ -278,7 +277,7 @@ public class FinancialAnalysisMenu {
         } else {
             for (int i = 0; i < topCategories.size(); i++) {
                 CategorySummary summary = topCategories.get(i);
-                System.out.println((i + 1) + ". " + summary.getCategory() + ": $" + String.format("%.2f", summary.getTotalAmount()));
+                System.out.println((i + 1) + ". " + summary.getCategory() + ": GHc" + String.format("%.2f", summary.getTotalAmount()));
             }
         }
     }
@@ -296,10 +295,10 @@ public class FinancialAnalysisMenu {
         
         System.out.println("\n--- Efficiency Metrics Results ---");
         System.out.println("Period: " + DATE_FORMAT.format(startDate) + " to " + DATE_FORMAT.format(endDate));
-        System.out.println("Total Spent: $" + String.format("%.2f", metrics.getTotalSpent()));
+        System.out.println("Total Spent: GHc" + String.format("%.2f", metrics.getTotalSpent()));
         System.out.println("Transaction Count: " + metrics.getTransactionCount());
-        System.out.println("Unique Phases: " + metrics.getUniqueVendorCount());
-        System.out.println("Average Transaction Amount: $" + String.format("%.2f", metrics.getAverageTransactionAmount()));
+        System.out.println("Unique Phases: " + metrics.getUniquePhaseCount());
+        System.out.println("Average Transaction Amount: GHc" + String.format("%.2f", metrics.getAverageTransactionAmount()));
     }
     
     private Expenditure[] getExpenditureArray() {

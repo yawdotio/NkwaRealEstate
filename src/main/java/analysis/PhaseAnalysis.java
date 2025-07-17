@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Analysis data for a specific vendor.
+ * Analysis data for a specific Phase.
  */
-public class VendorAnalysis {
-    private String vendor;
+public class PhaseAnalysis {
+    private String Phase;
     private List<Expenditure> expenditures;
     private double totalAmount;
     private int transactionCount;
@@ -17,8 +17,8 @@ public class VendorAnalysis {
     private Date firstTransaction;
     private Date lastTransaction;
     
-    public VendorAnalysis(String vendor) {
-        this.vendor = vendor;
+    public PhaseAnalysis(String Phase) {
+        this.Phase = Phase;
         this.expenditures = new ArrayList<>();
         this.totalAmount = 0.0;
         this.transactionCount = 0;
@@ -48,7 +48,7 @@ public class VendorAnalysis {
     }
     
     // Getters
-    public String getVendor() { return vendor; }
+    public String getPhase() { return Phase; }
     public List<Expenditure> getExpenditures() { return new ArrayList<>(expenditures); }
     public double getTotalAmount() { return totalAmount; }
     public int getTransactionCount() { return transactionCount; }
@@ -58,7 +58,7 @@ public class VendorAnalysis {
     
     @Override
     public String toString() {
-        return String.format("VendorAnalysis{vendor='%s', totalAmount=%.2f, transactionCount=%d, averageAmount=%.2f}", 
-                           vendor, totalAmount, transactionCount, averageAmount);
+        return String.format("PhaseAnalysis{Phase='%s', totalAmount=%.2f, transactionCount=%d, averageAmount=%.2f}", 
+                           Phase, totalAmount, transactionCount, averageAmount);
     }
 }
