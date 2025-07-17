@@ -1,9 +1,8 @@
 package receipts;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -15,7 +14,7 @@ public class ReceiptManager {
     private Queue<Receipt> processingQueue;
     private Stack<Receipt> recentlyProcessed;
     private static final String RECEIPTS_FILE = "src/main/resources/receipts.txt";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final int MAX_RECENT_PROCESSED = 50;
     
     public ReceiptManager() {
@@ -201,8 +200,8 @@ public class ReceiptManager {
             if (parts.length >= 9) {
                 String receiptId = parts[0].trim();
                 String receiptNumber = parts[1].trim();
-                LocalDate receiptDate = LocalDate.parse(parts[2].trim(), DATE_FORMAT);
-                BigDecimal amount = new BigDecimal(parts[3].trim());
+                Date receiptDate = DATE_FORMAT.parse(parts[2].trim());
+                double amount = Double.parseDouble(parts[3].trim());
                 String vendor = parts[4].trim();
                 String description = parts[5].trim();
                 String expenditureId = parts[6].trim();
@@ -230,8 +229,8 @@ public class ReceiptManager {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
                            receipt.getReceiptId(),
                            receipt.getReceiptNumber(),
-                           receipt.getReceiptDate().format(DATE_FORMAT),
-                           receipt.getAmount().toString(),
+                           DATE_FORMAT.format(receipt.getReceiptDate()),
+                           String.valueOf(receipt.getAmount()),
                            receipt.getVendor(),
                            receipt.getDescription(),
                            expenditureId,

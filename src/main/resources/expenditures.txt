@@ -1,3 +1,18 @@
-# Expenditures data file
-# Format: expenditureId,description,amount,date,accountId,categoryId,vendor,projectId
-EXP001,Office Supplies,125.50,2024-01-15,ACC001,CAT001,Staples,PRJ001
+EXP001|45000.0|15-06-2025|construction|cement|ACC001|receipts/REC001.pdf
+EXP002|32000.0|16-06-2025|construction|sand|ACC001|receipts/REC002.pdf
+EXP003|28000.0|17-06-2025|construction|gravel|ACC001|receipts/REC003.pdf
+EXP004|85000.0|18-06-2025|construction|rebar|ACC001|receipts/REC004.pdf
+EXP005|120000.0|19-06-2025|construction|blocks|ACC001|receipts/REC005.pdf
+EXP006|75000.0|20-06-2025|construction|roofing|ACC002|receipts/REC006.pdf
+EXP007|55000.0|21-06-2025|construction|plumbing|ACC002|receipts/REC007.pdf
+EXP008|90000.0|22-06-2025|construction|electrical|ACC002|receipts/REC008.pdf
+EXP009|38000.0|23-06-2025|construction|paint|ACC002|receipts/REC009.pdf
+EXP010|95000.0|24-06-2025|construction|tiles|ACC003|receipts/REC010.pdf
+EXP011|65000.0|25-06-2025|construction|lumber|ACC003|receipts/REC011.pdf
+EXP012|42000.0|26-06-2025|construction|hardware|ACC003|receipts/REC012.pdf
+EXP013|180000.0|27-06-2025|construction|excavation|ACC003|receipts/REC013.pdf
+EXP014|75000.0|28-06-2025|construction|transport|ACC003|receipts/REC014.pdf
+EXP015|135000.0|29-06-2025|construction|labor|ACC003|receipts/REC015.pdf
+EXP016|68000.0|30-06-2025|construction|cement|ACC004|receipts/REC016.pdf
+EXP017|45000.0|01-07-2025|construction|sand|ACC004|receipts/REC017.pdf
+EXP018|52000.0|02-07-2025|construction|gravel|ACC004|receipts/REC018.pdf

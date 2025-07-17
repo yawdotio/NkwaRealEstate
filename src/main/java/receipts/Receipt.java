@@ -1,7 +1,6 @@
 package receipts;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -10,8 +9,8 @@ import java.util.Objects;
 public class Receipt {
     private String receiptId;
     private String receiptNumber;
-    private LocalDate receiptDate;
-    private BigDecimal amount;
+    private Date receiptDate;
+    private double amount;
     private String vendor;
     private String description;
     private String expenditureId;
@@ -22,7 +21,7 @@ public class Receipt {
         PENDING, VALIDATED, REJECTED, PROCESSED
     }
     
-    public Receipt(String receiptId, String receiptNumber, LocalDate receiptDate, BigDecimal amount, 
+    public Receipt(String receiptId, String receiptNumber, Date receiptDate, double amount, 
                   String vendor, String description, String expenditureId, ReceiptStatus status, String filePath) {
         this.receiptId = receiptId;
         this.receiptNumber = receiptNumber;
@@ -42,11 +41,11 @@ public class Receipt {
     public String getReceiptNumber() { return receiptNumber; }
     public void setReceiptNumber(String receiptNumber) { this.receiptNumber = receiptNumber; }
     
-    public LocalDate getReceiptDate() { return receiptDate; }
-    public void setReceiptDate(LocalDate receiptDate) { this.receiptDate = receiptDate; }
+    public Date getReceiptDate() { return receiptDate; }
+    public void setReceiptDate(Date receiptDate) { this.receiptDate = receiptDate; }
     
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
     
     public String getVendor() { return vendor; }
     public void setVendor(String vendor) { this.vendor = vendor; }
@@ -78,7 +77,7 @@ public class Receipt {
     
     @Override
     public String toString() {
-        return String.format("Receipt{id='%s', number='%s', date=%s, amount=%s, vendor='%s', status=%s}", 
+        return String.format("Receipt{id='%s', number='%s', date=%s, amount=%.2f, vendor='%s', status=%s}", 
                            receiptId, receiptNumber, receiptDate, amount, vendor, status);
     }
 }

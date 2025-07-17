@@ -1,87 +1,132 @@
 package expenditures;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Manages expenditure records using HashMap and LinkedList.
- * Handles expenditure creation, retrieval, and persistence.
+ * Manages a collection of Expenditure records using a HashMap.
+ * Handles loading from and saving to a text file.
  */
 public class ExpenditureManager {
-    private Map<String, Expenditure> expenditures;
-    private LinkedList<Expenditure> expenditureHistory;
-    private static final String EXPENDITURES_FILE = "src/main/resources/expenditures.txt";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    
+
+    private final HashMap<String, Expenditure> expenditures; // Key: code
+    private final String filePath = "src/main/resources/expenditures.txt";
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
     public ExpenditureManager() {
-        this.expenditures = new HashMap<>();
-        this.expenditureHistory = new LinkedList<>();
-        loadExpenditures();
+        expenditures = new HashMap<>();
+        loadFromFile(); // Load data on startup
     }
-    
+
     /**
-     * Adds a new expenditure to the system.
+     * Adds a new expenditure to the system and saves it to file.
      */
-    public void addExpenditure(Expenditure expenditure) {
-        expenditures.put(expenditure.getExpenditureId(), expenditure);
-        expenditureHistory.addFirst(expenditure); // Most recent first
-        saveExpenditures();
+    public void addExpenditure(Expenditure exp) {
+        expenditures.put(exp.getCode(), exp);
+        saveToFile();
     }
-    
+
     /**
-     * Retrieves an expenditure by ID.
+     * Finds an expenditure by its code.
      */
-    public Expenditure getExpenditure(String expenditureId) {
-        return expenditures.get(expenditureId);
+    public Expenditure findByCode(String code) {
+        return expenditures.get(code);
     }
-    
+
     /**
-     * Returns all expenditures.
+     * Returns a list of all expenditures.
      */
-    public Collection<Expenditure> getAllExpenditures() {
-        return expenditures.values();
+    public List<Expenditure> getAll() {
+        return new ArrayList<>(expenditures.values());
     }
-    
+
     /**
-     * Returns expenditure history (most recent first).
+     * Loads expenditure data from a text file into memory.
+     * Format: code|amount|date|phase|category|accountId|receiptPath
      */
-    public List<Expenditure> getExpenditureHistory() {
-        return new ArrayList<>(expenditureHistory);
-    }
-    
-    /**
-     * Updates an existing expenditure.
-     */
-    public void updateExpenditure(Expenditure expenditure) {
-        if (expenditures.containsKey(expenditure.getExpenditureId())) {
-            expenditures.put(expenditure.getExpenditureId(), expenditure);
-            // Update in history list
-            expenditureHistory.remove(expenditure);
-            expenditureHistory.addFirst(expenditure);
-            saveExpenditures();
+    private void loadFromFile() {
+        File file = new File(filePath);
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 7) {
+                    String code = parts[0];
+                    double amount = Double.parseDouble(parts[1]);
+                    Date date = dateFormat.parse(parts[2]);
+                    String phase = parts[3];
+                    String category = parts[4];
+                    String accountId = parts[5];
+                    String receiptPath = parts[6];
+
+                    Expenditure exp = new Expenditure(code, amount, date, phase, category, accountId, receiptPath);
+                    expenditures.put(code, exp);
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error loading expenditures: " + e.getMessage());
         }
     }
-    
+
     /**
-     * Removes an expenditure by ID.
+     * Saves all expenditure records to a text file.
      */
-    public boolean removeExpenditure(String expenditureId) {
-        Expenditure removed = expenditures.remove(expenditureId);
-        if (removed != null) {
-            expenditureHistory.remove(removed);
-            saveExpenditures();
-            return true;
+    private void saveToFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            for (Expenditure exp : expenditures.values()) {
+                String line = exp.getCode() + "|" +
+                              exp.getAmount() + "|" +
+                              dateFormat.format(exp.getDate()) + "|" +
+                              exp.getPhase() + "|" +
+                              exp.getCategory() + "|" +
+                              exp.getAccountId() + "|" +
+                              (exp.getReceiptPath() == null ? "" : exp.getReceiptPath());
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error saving expenditures: " + e.getMessage());
         }
-        return false;
     }
-    
-    /**
-     * Gets expenditures by account ID.
-     */
-    public List<Expenditure> getExpendituresByAccount(String accountId) {
+
+    public List<Expenditure> searchByDateRange(Date start, Date end) {
+        List<Expenditure> result = new ArrayList<>();
+        for (Expenditure exp : expenditures.values()) {
+            if (exp.getDate().after(start) && exp.getDate().before(end)) {
+                result.add(exp);
+            }
+        }
+        return result;
+    }
+
+    public List<Expenditure> searchByPhase(String phase) {
+        List<Expenditure> result = new ArrayList<>();
+        for (Expenditure exp : expenditures.values()) {
+            if (phase.equals(exp.getPhase())) {
+                result.add(exp);
+            }
+        }
+        return result;
+    }
+
+    public List<Expenditure> searchByCategory(String category) {
+        List<Expenditure> result = new ArrayList<>();
+        for (Expenditure exp : expenditures.values()) {
+            if (category.equals(exp.getCategory())) {
+                result.add(exp);
+            }
+        }
+        return result;
+    }
+
+    public List<Expenditure> searchByAccountId(String accountId) {
         List<Expenditure> result = new ArrayList<>();
         for (Expenditure exp : expenditures.values()) {
             if (accountId.equals(exp.getAccountId())) {
@@ -90,117 +135,65 @@ public class ExpenditureManager {
         }
         return result;
     }
-    
-    /**
-     * Gets expenditures by category ID.
-     */
-    public List<Expenditure> getExpendituresByCategory(String categoryId) {
-        List<Expenditure> result = new ArrayList<>();
-        for (Expenditure exp : expenditures.values()) {
-            if (categoryId.equals(exp.getCategoryId())) {
-                result.add(exp);
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * Gets expenditures within a date range.
-     */
-    public List<Expenditure> getExpendituresByDateRange(LocalDate startDate, LocalDate endDate) {
-        List<Expenditure> result = new ArrayList<>();
-        for (Expenditure exp : expenditures.values()) {
-            LocalDate expDate = exp.getDate();
-            if (!expDate.isBefore(startDate) && !expDate.isAfter(endDate)) {
-                result.add(exp);
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * Calculates total expenditures for a given account.
-     */
-    public BigDecimal getTotalExpendituresByAccount(String accountId) {
-        BigDecimal total = BigDecimal.ZERO;
+
+    public double getTotalSpentByAccount(String accountId) {
+        double total = 0.0;
         for (Expenditure exp : expenditures.values()) {
             if (accountId.equals(exp.getAccountId())) {
-                total = total.add(exp.getAmount());
+                total += exp.getAmount();
+            }
+        }
+        return total;
+    }
+
+    public double getTotalSpentByPhase(String phase) {
+        double total = 0.0;
+        for (Expenditure exp : expenditures.values()) {
+            if (phase.equals(exp.getPhase())) {
+                total += exp.getAmount();
+            }
+        }
+        return total;
+    }
+
+    public double getTotalSpentByCategory(String category) {
+        double total = 0.0;
+        for (Expenditure exp : expenditures.values()) {
+            if (category.equals(exp.getCategory())) {
+                total += exp.getAmount();
             }
         }
         return total;
     }
     
-    /**
-     * Loads expenditures from file.
-     */
-    private void loadExpenditures() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(EXPENDITURES_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    Expenditure expenditure = parseExpenditure(line);
-                    if (expenditure != null) {
-                        expenditures.put(expenditure.getExpenditureId(), expenditure);
-                        expenditureHistory.addLast(expenditure);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading expenditures: " + e.getMessage());
-        }
+    // Backward compatibility methods for existing menus
+    public java.util.Collection<Expenditure> getAllExpenditures() {
+        return getAll();
     }
     
-    /**
-     * Saves expenditures to file.
-     */
-    private void saveExpenditures() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(EXPENDITURES_FILE))) {
-            for (Expenditure expenditure : expenditures.values()) {
-                writer.println(formatExpenditure(expenditure));
-            }
-        } catch (IOException e) {
-            System.err.println("Error saving expenditures: " + e.getMessage());
-        }
+    public Expenditure getExpenditure(String code) {
+        return findByCode(code);
     }
     
-    /**
-     * Parses a line from the file into an Expenditure object.
-     * Format: expenditureId,description,amount,date,accountId,categoryId,vendor,projectId
-     */
-    private Expenditure parseExpenditure(String line) {
-        try {
-            String[] parts = line.split(",");
-            if (parts.length >= 8) {
-                String expenditureId = parts[0].trim();
-                String description = parts[1].trim();
-                BigDecimal amount = new BigDecimal(parts[2].trim());
-                LocalDate date = LocalDate.parse(parts[3].trim(), DATE_FORMAT);
-                String accountId = parts[4].trim();
-                String categoryId = parts[5].trim();
-                String vendor = parts[6].trim();
-                String projectId = parts[7].trim();
-                
-                return new Expenditure(expenditureId, description, amount, date, accountId, categoryId, vendor, projectId);
-            }
-        } catch (Exception e) {
-            System.err.println("Error parsing expenditure line: " + line);
-        }
-        return null;
+    public List<Expenditure> getExpendituresByAccount(String accountId) {
+        return searchByAccountId(accountId);
     }
     
-    /**
-     * Formats an Expenditure object for file storage.
-     */
-    private String formatExpenditure(Expenditure expenditure) {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s",
-                           expenditure.getExpenditureId(),
-                           expenditure.getDescription(),
-                           expenditure.getAmount().toString(),
-                           expenditure.getDate().format(DATE_FORMAT),
-                           expenditure.getAccountId(),
-                           expenditure.getCategoryId(),
-                           expenditure.getVendor(),
-                           expenditure.getProjectId());
+    public List<Expenditure> getExpendituresByCategory(String category) {
+        return searchByCategory(category);
+    }
+    
+    public boolean removeExpenditure(String code) {
+        Expenditure removed = expenditures.remove(code);
+        if (removed != null) {
+            saveToFile();
+            return true;
+        }
+        return false;
+    }
+    
+    public void updateExpenditure(Expenditure expenditure) {
+        expenditures.put(expenditure.getCode(), expenditure);
+        saveToFile();
     }
 }

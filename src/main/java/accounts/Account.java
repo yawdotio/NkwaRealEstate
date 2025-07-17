@@ -1,53 +1,49 @@
 package accounts;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a bank account with balance tracking.
+ * Represents a company bank account used for funding expenditures.
  * This class is used to model individual bank accounts in the system.
  */
 public class Account {
-    private String accountId;
-    private String accountName;
-    private String accountType;
-    private BigDecimal balance;
-    private String bankName;
+    private String accountId;      // Unique account ID
+    private String bankName;       // Name of the bank
+    private double balance;        // Current balance
+    private List<String> expenditureCodes; // References to expenditures made from this account
     
-    public Account(String accountId, String accountName, String accountType, BigDecimal balance, String bankName) {
+    public Account(String accountId, String bankName, double balance) {
         this.accountId = accountId;
-        this.accountName = accountName;
-        this.accountType = accountType;
-        this.balance = balance;
         this.bankName = bankName;
+        this.balance = balance;
+        this.expenditureCodes = new ArrayList<>();
     }
     
-    // Getters and setters
+    // Getters
     public String getAccountId() { return accountId; }
-    public void setAccountId(String accountId) { this.accountId = accountId; }
-    
-    public String getAccountName() { return accountName; }
-    public void setAccountName(String accountName) { this.accountName = accountName; }
-    
-    public String getAccountType() { return accountType; }
-    public void setAccountType(String accountType) { this.accountType = accountType; }
-    
-    public BigDecimal getBalance() { return balance; }
-    public void setBalance(BigDecimal balance) { this.balance = balance; }
-    
     public String getBankName() { return bankName; }
-    public void setBankName(String bankName) { this.bankName = bankName; }
-    
-    public void debit(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0) {
-            this.balance = this.balance.subtract(amount);
-        }
+    public double getBalance() { return balance; }
+    public List<String> getExpenditureCodes() { return expenditureCodes; }
+
+    // Add an expenditure reference to the list
+    public void addExpenditure(String code) {
+        expenditureCodes.add(code);
     }
-    
-    public void credit(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0) {
-            this.balance = this.balance.add(amount);
+
+    // Withdraw amount from balance (called during expenditure)
+    public boolean withdraw(double amount) {
+        if (amount > balance) {
+            return false; // Not enough funds
         }
+        balance -= amount;
+        return true;
+    }
+
+    // Deposit amount (e.g., initial funding or refund)
+    public void deposit(double amount) {
+        balance += amount;
     }
     
     @Override
@@ -63,9 +59,14 @@ public class Account {
         return Objects.hash(accountId);
     }
     
+    // Display bank account info
     @Override
     public String toString() {
-        return String.format("Account{id='%s', name='%s', type='%s', balance=%s, bank='%s'}", 
-                           accountId, accountName, accountType, balance, bankName);
+        return "Bank Account [" +
+               "ID: " + accountId +
+               ", Bank: " + bankName +
+               ", Balance: GHS " + balance +
+               ", Transactions: " + expenditureCodes.size() +
+               "]";
     }
 }

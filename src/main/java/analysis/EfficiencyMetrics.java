@@ -1,32 +1,30 @@
 package analysis;
 
-import java.math.BigDecimal;
-
 /**
  * Represents efficiency metrics for spending analysis.
  */
 public class EfficiencyMetrics {
-    private BigDecimal totalSpent;
+    private double totalSpent;
     private int transactionCount;
     private int uniqueVendorCount;
-    private BigDecimal averageTransactionAmount;
+    private double averageTransactionAmount;
     
-    public EfficiencyMetrics(BigDecimal totalSpent, int transactionCount, 
-                           int uniqueVendorCount, BigDecimal averageTransactionAmount) {
+    public EfficiencyMetrics(double totalSpent, int transactionCount, 
+                           int uniqueVendorCount, double averageTransactionAmount) {
         this.totalSpent = totalSpent;
         this.transactionCount = transactionCount;
         this.uniqueVendorCount = uniqueVendorCount;
         this.averageTransactionAmount = averageTransactionAmount;
     }
     
-    public BigDecimal getTotalSpent() { return totalSpent; }
+    public double getTotalSpent() { return totalSpent; }
     public int getTransactionCount() { return transactionCount; }
     public int getUniqueVendorCount() { return uniqueVendorCount; }
-    public BigDecimal getAverageTransactionAmount() { return averageTransactionAmount; }
+    public double getAverageTransactionAmount() { return averageTransactionAmount; }
     
     @Override
     public String toString() {
-        return String.format("EfficiencyMetrics{totalSpent=%s, transactionCount=%d, uniqueVendorCount=%d, averageTransactionAmount=%s}", 
+        return String.format("EfficiencyMetrics{totalSpent=%.2f, transactionCount=%d, uniqueVendorCount=%d, averageTransactionAmount=%.2f}", 
                            totalSpent, transactionCount, uniqueVendorCount, averageTransactionAmount);
     }
 }

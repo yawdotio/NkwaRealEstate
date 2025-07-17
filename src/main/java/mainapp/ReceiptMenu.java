@@ -1,10 +1,8 @@
 package mainapp;
 
 import receipts.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -13,7 +11,7 @@ import java.util.*;
 public class ReceiptMenu {
     private ReceiptManager receiptManager;
     private Scanner scanner;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     
     public ReceiptMenu(Scanner scanner) {
         this.scanner = scanner;
@@ -89,10 +87,10 @@ public class ReceiptMenu {
         String receiptNumber = scanner.nextLine();
         
         System.out.print("Enter receipt date (yyyy-MM-dd): ");
-        LocalDate date = getDateInput();
+        Date date = getDateInput();
         
         System.out.print("Enter amount: ");
-        BigDecimal amount = getBigDecimalInput();
+        double amount = getDoubleInput();
         
         System.out.print("Enter vendor: ");
         String vendor = scanner.nextLine();
@@ -247,21 +245,21 @@ public class ReceiptMenu {
         }
     }
     
-    private BigDecimal getBigDecimalInput() {
+    private double getDoubleInput() {
         while (true) {
             try {
-                return new BigDecimal(scanner.nextLine());
+                return Double.parseDouble(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.print("Invalid amount. Please enter a valid number: ");
             }
         }
     }
     
-    private LocalDate getDateInput() {
+    private Date getDateInput() {
         while (true) {
             try {
-                return LocalDate.parse(scanner.nextLine(), DATE_FORMAT);
-            } catch (DateTimeParseException e) {
+                return DATE_FORMAT.parse(scanner.nextLine());
+            } catch (ParseException e) {
                 System.out.print("Invalid date format. Please use yyyy-MM-dd: ");
             }
         }

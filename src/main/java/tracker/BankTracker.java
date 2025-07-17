@@ -105,7 +105,7 @@ public class BankTracker {
         
         for (Account account : minHeap) {
             BigDecimal threshold = alertThresholds.get(account.getAccountId());
-            if (threshold != null && account.getBalance().compareTo(threshold) < 0) {
+            if (threshold != null && account.getBalance() < threshold.doubleValue()) {
                 result.add(account);
             }
         }
@@ -159,7 +159,7 @@ public class BankTracker {
         List<Account> result = new ArrayList<>();
         
         for (Account account : minHeap) {
-            if (account.getBalance().compareTo(amount) < 0) {
+            if (account.getBalance() < amount.doubleValue()) {
                 result.add(account);
             }
         }
@@ -173,7 +173,7 @@ public class BankTracker {
     public BigDecimal getTotalBalance() {
         BigDecimal total = BigDecimal.ZERO;
         for (Account account : minHeap) {
-            total = total.add(account.getBalance());
+            total = total.add(BigDecimal.valueOf(account.getBalance()));
         }
         return total;
     }
@@ -196,8 +196,8 @@ public class BankTracker {
             return new BalanceStatistics(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
         
-        BigDecimal min = getLowestBalanceAccount().getBalance();
-        BigDecimal max = Collections.max(minHeap, Comparator.comparing(Account::getBalance)).getBalance();
+        BigDecimal min = BigDecimal.valueOf(getLowestBalanceAccount().getBalance());
+        BigDecimal max = BigDecimal.valueOf(Collections.max(minHeap, Comparator.comparing(Account::getBalance)).getBalance());
         BigDecimal average = getAverageBalance();
         int count = minHeap.size();
         
@@ -209,7 +209,7 @@ public class BankTracker {
      */
     private void checkAndCreateAlert(Account account) {
         BigDecimal threshold = alertThresholds.get(account.getAccountId());
-        if (threshold != null && account.getBalance().compareTo(threshold) < 0) {
+        if (threshold != null && account.getBalance() < threshold.doubleValue()) {
             // Check if we already have an unread alert for this account
             boolean hasUnreadAlert = alerts.stream()
                 .anyMatch(alert -> alert.getAccountId().equals(account.getAccountId()) && !alert.isRead());
@@ -218,7 +218,7 @@ public class BankTracker {
                 BalanceAlert alert = new BalanceAlert(
                     UUID.randomUUID().toString(),
                     account.getAccountId(),
-                    account.getBalance(),
+                    BigDecimal.valueOf(account.getBalance()),
                     threshold,
                     new Date(),
                     false

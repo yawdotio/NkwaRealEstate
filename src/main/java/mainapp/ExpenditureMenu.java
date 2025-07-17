@@ -1,29 +1,36 @@
 package mainapp;
 
-import expenditures.*;
+import expenditures.Expenditure;
+import expenditures.ExpenditureManager;
+import expenditures.ExpenditureService;
+import accounts.Account;
 import accounts.AccountManager;
 import categories.CategoryManager;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import receipts.ReceiptManager;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
  * Menu handler for Expenditure Management functionality.
+ * Updated to use the new integrated system with ExpenditureService.
  */
 public class ExpenditureMenu {
     private ExpenditureManager expenditureManager;
     private AccountManager accountManager;
     private CategoryManager categoryManager;
+    private ExpenditureService expenditureService;
+    private ReceiptManager receiptManager;
     private Scanner scanner;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     
     public ExpenditureMenu(Scanner scanner) {
         this.scanner = scanner;
         this.expenditureManager = new ExpenditureManager();
         this.accountManager = new AccountManager();
         this.categoryManager = new CategoryManager();
+        this.receiptManager = new ReceiptManager();
+        this.expenditureService = new ExpenditureService(expenditureManager, accountManager, receiptManager);
     }
     
     public void showMenu() {
@@ -46,10 +53,10 @@ public class ExpenditureMenu {
                     viewExpendituresByCategory();
                     break;
                 case 5:
-                    viewExpendituresByDateRange();
+                    viewExpendituresByPhase();
                     break;
                 case 6:
-                    updateExpenditure();
+                    viewAccountSummary();
                     break;
                 case 7:
                     deleteExpenditure();
@@ -74,8 +81,8 @@ public class ExpenditureMenu {
         System.out.println("2. View All Expenditures");
         System.out.println("3. View Expenditures by Account");
         System.out.println("4. View Expenditures by Category");
-        System.out.println("5. View Expenditures by Date Range");
-        System.out.println("6. Update Expenditure");
+        System.out.println("5. View Expenditures by Phase");
+        System.out.println("6. View Account Summary");
         System.out.println("7. Delete Expenditure");
         System.out.println("0. Back to Main Menu");
         System.out.print("Enter your choice: ");
@@ -84,39 +91,52 @@ public class ExpenditureMenu {
     private void addExpenditure() {
         System.out.println("\n--- Add New Expenditure ---");
         
-        System.out.print("Enter expenditure ID: ");
-        String id = scanner.nextLine();
+        // Show available accounts
+        System.out.println("Available Accounts:");
+        for (Account account : accountManager.getAllAccounts()) {
+            System.out.println("  " + account.getAccountId() + " - " + account.getBankName() + 
+                             " (Balance: GHS " + account.getBalance() + ")");
+        }
         
-        System.out.print("Enter description: ");
-        String description = scanner.nextLine();
+        System.out.print("\nEnter expenditure code: ");
+        String code = scanner.nextLine();
         
         System.out.print("Enter amount: ");
-        BigDecimal amount = getBigDecimalInput();
+        double amount = getDoubleInput();
         
-        System.out.print("Enter date (yyyy-MM-dd): ");
-        LocalDate date = getDateInput();
+        System.out.print("Enter date (dd-MM-yyyy): ");
+        Date date = getDateInput();
+        
+        System.out.print("Enter phase (construction/marketing/sales): ");
+        String phase = scanner.nextLine();
+        
+        System.out.print("Enter category: ");
+        String category = scanner.nextLine();
         
         System.out.print("Enter account ID: ");
         String accountId = scanner.nextLine();
         
-        System.out.print("Enter category ID: ");
-        String categoryId = scanner.nextLine();
+        System.out.print("Enter receipt path (optional): ");
+        String receiptPath = scanner.nextLine();
+        if (receiptPath.trim().isEmpty()) {
+            receiptPath = null;
+        }
         
-        System.out.print("Enter vendor: ");
-        String vendor = scanner.nextLine();
+        // Use the service to create expenditure with proper account integration
+        boolean success = expenditureService.createExpenditure(code, amount, date, phase, category, accountId, receiptPath);
         
-        System.out.print("Enter project ID: ");
-        String projectId = scanner.nextLine();
-        
-        Expenditure expenditure = new Expenditure(id, description, amount, date, accountId, categoryId, vendor, projectId);
-        expenditureManager.addExpenditure(expenditure);
-        
-        System.out.println("Expenditure added successfully!");
+        if (success) {
+            // Add category if it doesn't exist
+            categoryManager.addCategory(category);
+            System.out.println("Expenditure added successfully!");
+        } else {
+            System.out.println("Failed to add expenditure. Please check the details.");
+        }
     }
     
     private void viewAllExpenditures() {
         System.out.println("\n--- All Expenditures ---");
-        Collection<Expenditure> expenditures = expenditureManager.getAllExpenditures();
+        List<Expenditure> expenditures = expenditureManager.getAll();
         
         if (expenditures.isEmpty()) {
             System.out.println("No expenditures found.");
@@ -137,86 +157,63 @@ public class ExpenditureMenu {
             System.out.println("No expenditures found for account: " + accountId);
         } else {
             System.out.println("\n--- Expenditures for Account: " + accountId + " ---");
+            double total = 0;
             for (Expenditure exp : expenditures) {
                 System.out.println(exp);
+                total += exp.getAmount();
             }
+            System.out.println("Total spent from this account: GHS " + total);
         }
     }
     
     private void viewExpendituresByCategory() {
-        System.out.print("Enter category ID: ");
-        String categoryId = scanner.nextLine();
+        System.out.print("Enter category: ");
+        String category = scanner.nextLine();
         
-        List<Expenditure> expenditures = expenditureManager.getExpendituresByCategory(categoryId);
+        List<Expenditure> expenditures = expenditureManager.getExpendituresByCategory(category);
         
         if (expenditures.isEmpty()) {
-            System.out.println("No expenditures found for category: " + categoryId);
+            System.out.println("No expenditures found for category: " + category);
         } else {
-            System.out.println("\n--- Expenditures for Category: " + categoryId + " ---");
+            System.out.println("\n--- Expenditures for Category: " + category + " ---");
+            double total = 0;
             for (Expenditure exp : expenditures) {
                 System.out.println(exp);
+                total += exp.getAmount();
             }
+            System.out.println("Total spent on this category: GHS " + total);
         }
     }
     
-    private void viewExpendituresByDateRange() {
-        System.out.print("Enter start date (yyyy-MM-dd): ");
-        LocalDate startDate = getDateInput();
+    private void viewExpendituresByPhase() {
+        System.out.print("Enter phase: ");
+        String phase = scanner.nextLine();
         
-        System.out.print("Enter end date (yyyy-MM-dd): ");
-        LocalDate endDate = getDateInput();
-        
-        List<Expenditure> expenditures = expenditureManager.getExpendituresByDateRange(startDate, endDate);
+        List<Expenditure> expenditures = expenditureManager.searchByPhase(phase);
         
         if (expenditures.isEmpty()) {
-            System.out.println("No expenditures found in the specified date range.");
+            System.out.println("No expenditures found for phase: " + phase);
         } else {
-            System.out.println("\n--- Expenditures from " + startDate + " to " + endDate + " ---");
+            System.out.println("\n--- Expenditures for Phase: " + phase + " ---");
+            double total = 0;
             for (Expenditure exp : expenditures) {
                 System.out.println(exp);
+                total += exp.getAmount();
             }
+            System.out.println("Total spent on this phase: GHS " + total);
         }
     }
     
-    private void updateExpenditure() {
-        System.out.print("Enter expenditure ID to update: ");
-        String id = scanner.nextLine();
-        
-        Expenditure expenditure = expenditureManager.getExpenditure(id);
-        if (expenditure == null) {
-            System.out.println("Expenditure not found.");
-            return;
-        }
-        
-        System.out.println("Current expenditure: " + expenditure);
-        System.out.println("Enter new values (press Enter to keep current value):");
-        
-        System.out.print("Description [" + expenditure.getDescription() + "]: ");
-        String description = scanner.nextLine();
-        if (!description.isEmpty()) {
-            expenditure.setDescription(description);
-        }
-        
-        System.out.print("Amount [" + expenditure.getAmount() + "]: ");
-        String amountStr = scanner.nextLine();
-        if (!amountStr.isEmpty()) {
-            try {
-                BigDecimal amount = new BigDecimal(amountStr);
-                expenditure.setAmount(amount);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid amount format. Keeping current value.");
-            }
-        }
-        
-        expenditureManager.updateExpenditure(expenditure);
-        System.out.println("Expenditure updated successfully!");
+    private void viewAccountSummary() {
+        expenditureService.printAccountSummary();
     }
     
     private void deleteExpenditure() {
-        System.out.print("Enter expenditure ID to delete: ");
-        String id = scanner.nextLine();
+        System.out.println("\n--- Delete Expenditure ---");
+        System.out.print("Enter expenditure code: ");
+        String code = scanner.nextLine();
         
-        if (expenditureManager.removeExpenditure(id)) {
+        if (expenditureManager.removeExpenditure(code)) {
             System.out.println("Expenditure deleted successfully!");
         } else {
             System.out.println("Expenditure not found.");
@@ -231,22 +228,22 @@ public class ExpenditureMenu {
         }
     }
     
-    private BigDecimal getBigDecimalInput() {
+    private double getDoubleInput() {
         while (true) {
             try {
-                return new BigDecimal(scanner.nextLine());
+                return Double.parseDouble(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.print("Invalid amount. Please enter a valid number: ");
+                System.out.print("Invalid number format. Please enter a valid amount: ");
             }
         }
     }
     
-    private LocalDate getDateInput() {
+    private Date getDateInput() {
         while (true) {
             try {
-                return LocalDate.parse(scanner.nextLine(), DATE_FORMAT);
-            } catch (DateTimeParseException e) {
-                System.out.print("Invalid date format. Please use yyyy-MM-dd: ");
+                return DATE_FORMAT.parse(scanner.nextLine());
+            } catch (ParseException e) {
+                System.out.print("Invalid date format. Please enter date (dd-MM-yyyy): ");
             }
         }
     }

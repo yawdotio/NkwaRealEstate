@@ -116,8 +116,8 @@ public class BankTrackerMenu {
             System.out.println("\n--- " + n + " Lowest Balance Accounts ---");
             for (int i = 0; i < accounts.size(); i++) {
                 Account account = accounts.get(i);
-                System.out.println((i + 1) + ". " + account.getAccountName() + 
-                                 " (" + account.getAccountId() + ") - $" + account.getBalance());
+                System.out.println((i + 1) + ". " + account.getBankName() + 
+                                 " (" + account.getAccountId() + ") - GHS " + account.getBalance());
             }
         }
     }
@@ -142,9 +142,9 @@ public class BankTrackerMenu {
             System.out.println("\n--- Accounts Below Alert Thresholds ---");
             for (Account account : accounts) {
                 BigDecimal threshold = bankTracker.getAlertThreshold(account.getAccountId());
-                System.out.println(account.getAccountName() + " (" + account.getAccountId() + ")");
-                System.out.println("  Current Balance: $" + account.getBalance());
-                System.out.println("  Alert Threshold: $" + threshold);
+                System.out.println(account.getBankName() + " (" + account.getAccountId() + ")");
+                System.out.println("  Current Balance: GHS " + account.getBalance());
+                System.out.println("  Alert Threshold: GHS " + threshold);
                 System.out.println();
             }
         }

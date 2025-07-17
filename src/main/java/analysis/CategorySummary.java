@@ -1,25 +1,26 @@
 package analysis;
 
-import java.math.BigDecimal;
-
 /**
  * Represents a category spending summary.
  */
 public class CategorySummary {
-    private String categoryId;
-    private BigDecimal totalAmount;
+    private String category;
+    private double totalAmount;
     
-    public CategorySummary(String categoryId, BigDecimal totalAmount) {
-        this.categoryId = categoryId;
+    public CategorySummary(String category, double totalAmount) {
+        this.category = category;
         this.totalAmount = totalAmount;
     }
     
-    public String getCategoryId() { return categoryId; }
-    public BigDecimal getTotalAmount() { return totalAmount; }
+    public String getCategory() { return category; }
+    public double getTotalAmount() { return totalAmount; }
+    
+    // Backward compatibility
+    public String getCategoryId() { return category; }
     
     @Override
     public String toString() {
-        return String.format("CategorySummary{categoryId='%s', totalAmount=%s}", 
-                           categoryId, totalAmount);
+        return String.format("CategorySummary{category='%s', totalAmount=%.2f}", 
+                           category, totalAmount);
     }
 }

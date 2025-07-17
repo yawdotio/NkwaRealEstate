@@ -1,3 +1,15 @@
-# Categories data file
-# Format: categoryId,categoryName,description,parentCategoryId,isActive
-CAT001,Office Supplies,Supplies for office operations,,true
+cement
+sand
+gravel
+rebar
+blocks
+roofing
+plumbing
+electrical
+paint
+tiles
+lumber
+hardware
+excavation
+transport
+labor

@@ -1,52 +1,76 @@
 package accounts;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Manages bank accounts using Map data structure.
- * Handles account creation, retrieval, and persistence.
+ * Manages all company bank accounts using a HashMap.
+ * Responsible for file persistence and account operations.
  */
 public class AccountManager {
-    private Map<String, Account> accounts;
-    private static final String ACCOUNTS_FILE = "src/main/resources/accounts.txt";
-    
+    private final HashMap<String, Account> accounts;
+    private final String filePath = "src/main/resources/accounts.txt";
+
     public AccountManager() {
-        this.accounts = new HashMap<>();
-        loadAccounts();
+        accounts = new HashMap<>();
+        loadFromFile();
     }
-    
+
     /**
-     * Adds a new account to the system.
+     * Adds a new bank account to the system and persists the change.
      */
     public void addAccount(Account account) {
         accounts.put(account.getAccountId(), account);
-        saveAccounts();
+        saveToFile();
     }
-    
+
     /**
      * Retrieves an account by ID.
      */
-    public Account getAccount(String accountId) {
-        return accounts.get(accountId);
+    public Account getAccount(String id) {
+        return accounts.get(id);
     }
-    
+
     /**
-     * Returns all accounts.
+     * Returns all bank accounts.
      */
-    public Collection<Account> getAllAccounts() {
-        return accounts.values();
+    public List<Account> getAllAccounts() {
+        return new ArrayList<>(accounts.values());
     }
-    
+
     /**
      * Updates an existing account.
      */
     public void updateAccount(Account account) {
         if (accounts.containsKey(account.getAccountId())) {
             accounts.put(account.getAccountId(), account);
-            saveAccounts();
+            saveToFile();
         }
+    }
+
+    /**
+     * Withdraw funds from an account and update balance.
+     */
+    public boolean withdrawFromAccount(String id, double amount) {
+        Account acc = accounts.get(id);
+        if (acc != null && acc.withdraw(amount)) {
+            saveToFile();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Deposit funds into an account.
+     */
+    public boolean depositToAccount(String id, double amount) {
+        Account acc = accounts.get(id);
+        if (acc != null) {
+            acc.deposit(amount);
+            saveToFile();
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -55,88 +79,63 @@ public class AccountManager {
     public boolean removeAccount(String accountId) {
         Account removed = accounts.remove(accountId);
         if (removed != null) {
-            saveAccounts();
+            saveToFile();
             return true;
         }
         return false;
     }
     
     /**
-     * Loads accounts from file.
+     * Load all account data from file.
      */
-    private void loadAccounts() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(ACCOUNTS_FILE))) {
+    private void loadFromFile() {
+        File file = new File(filePath);
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    Account account = parseAccount(line);
-                    if (account != null) {
-                        accounts.put(account.getAccountId(), account);
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length >= 3) {
+                    String id = parts[0];
+                    String bank = parts[1];
+                    double balance = Double.parseDouble(parts[2]);
+
+                    Account acc = new Account(id, bank, balance);
+
+                    if (parts.length == 4 && !parts[3].isEmpty()) {
+                        String[] codes = parts[3].split(",");
+                        for (String code : codes) {
+                            acc.addExpenditure(code);
+                        }
                     }
+
+                    accounts.put(id, acc);
                 }
             }
-        } catch (IOException e) {
-            System.err.println("Error loading accounts: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Saves accounts to file.
-     */
-    private void saveAccounts() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(ACCOUNTS_FILE))) {
-            for (Account account : accounts.values()) {
-                writer.println(formatAccount(account));
-            }
-        } catch (IOException e) {
-            System.err.println("Error saving accounts: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Parses a line from the file into an Account object.
-     * Format: accountId,accountName,accountType,balance,bankName
-     */
-    private Account parseAccount(String line) {
-        try {
-            String[] parts = line.split(",");
-            if (parts.length >= 5) {
-                String accountId = parts[0].trim();
-                String accountName = parts[1].trim();
-                String accountType = parts[2].trim();
-                BigDecimal balance = new BigDecimal(parts[3].trim());
-                String bankName = parts[4].trim();
-                
-                return new Account(accountId, accountName, accountType, balance, bankName);
-            }
+
         } catch (Exception e) {
-            System.err.println("Error parsing account line: " + line);
+            System.out.println("Error loading accounts: " + e.getMessage());
         }
-        return null;
     }
     
     /**
-     * Formats an Account object for file storage.
+     * Save all account data to file.
+     * Format: accountId|bankName|balance|expenditureCode1,expenditureCode2,...
      */
-    private String formatAccount(Account account) {
-        return String.format("%s,%s,%s,%s,%s",
-                           account.getAccountId(),
-                           account.getAccountName(),
-                           account.getAccountType(),
-                           account.getBalance().toString(),
-                           account.getBankName());
-    }
-    
-    /**
-     * Gets accounts with balance below a threshold.
-     */
-    public List<Account> getAccountsBelowThreshold(BigDecimal threshold) {
-        List<Account> result = new ArrayList<>();
-        for (Account account : accounts.values()) {
-            if (account.getBalance().compareTo(threshold) < 0) {
-                result.add(account);
+    private void saveToFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            for (Account acc : accounts.values()) {
+                String line = acc.getAccountId() + "|" +
+                              acc.getBankName() + "|" +
+                              acc.getBalance() + "|" +
+                              String.join(",", acc.getExpenditureCodes());
+                bw.write(line);
+                bw.newLine();
             }
+        } catch (IOException e) {
+            System.out.println("Error saving accounts: " + e.getMessage());
         }
-        return result;
     }
 }

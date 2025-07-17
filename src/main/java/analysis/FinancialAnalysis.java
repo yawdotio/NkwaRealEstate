@@ -1,74 +1,56 @@
 package analysis;
 
 import expenditures.Expenditure;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import accounts.Account;
+import accounts.AccountManager;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * Financial analysis utilities for forecasting and burn rate analysis.
- * Uses arrays and maps for efficient data processing.
+ * Updated to use NkwaExpenditureSystem structure with Date and double types.
  */
 public class FinancialAnalysis {
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    
+    public enum TrendDirection {
+        INCREASING, DECREASING, STABLE
+    }
     
     /**
      * Calculates the burn rate (spending rate) over a period.
      */
-    public static BigDecimal calculateBurnRate(Expenditure[] expenditures, LocalDate startDate, LocalDate endDate) {
-        BigDecimal totalSpent = BigDecimal.ZERO;
+    public static double calculateBurnRate(Expenditure[] expenditures, Date startDate, Date endDate) {
+        double totalSpent = 0.0;
         
         for (Expenditure exp : expenditures) {
-            LocalDate expDate = exp.getDate();
-            if (!expDate.isBefore(startDate) && !expDate.isAfter(endDate)) {
-                totalSpent = totalSpent.add(exp.getAmount());
+            Date expDate = exp.getDate();
+            if (!expDate.before(startDate) && !expDate.after(endDate)) {
+                totalSpent += exp.getAmount();
             }
         }
         
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+        long daysBetween = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
         if (daysBetween == 0) {
             return totalSpent;
         }
         
-        return totalSpent.divide(BigDecimal.valueOf(daysBetween), 2, java.math.RoundingMode.HALF_UP);
+        return totalSpent / daysBetween;
     }
     
     /**
-     * Calculates monthly spending analysis.
+     * Analyzes expenditures by category.
      */
-    public static Map<String, BigDecimal> calculateMonthlySpending(Expenditure[] expenditures, int year) {
-        Map<String, BigDecimal> monthlySpending = new HashMap<>();
-        
-        // Initialize all months with zero
-        for (int month = 1; month <= 12; month++) {
-            monthlySpending.put(String.format("%d-%02d", year, month), BigDecimal.ZERO);
-        }
-        
-        for (Expenditure exp : expenditures) {
-            LocalDate expDate = exp.getDate();
-            if (expDate.getYear() == year) {
-                String monthKey = String.format("%d-%02d", year, expDate.getMonthValue());
-                BigDecimal currentAmount = monthlySpending.get(monthKey);
-                monthlySpending.put(monthKey, currentAmount.add(exp.getAmount()));
-            }
-        }
-        
-        return monthlySpending;
-    }
-    
-    /**
-     * Analyzes spending by category.
-     */
-    public static Map<String, CategoryAnalysis> analyzeByCategoryIds(Expenditure[] expenditures) {
+    public static Map<String, CategoryAnalysis> analyzeByCategory(Expenditure[] expenditures) {
         Map<String, CategoryAnalysis> categoryAnalysis = new HashMap<>();
         
         for (Expenditure exp : expenditures) {
-            String categoryId = exp.getCategoryId();
-            CategoryAnalysis analysis = categoryAnalysis.get(categoryId);
+            String category = exp.getCategory();
+            CategoryAnalysis analysis = categoryAnalysis.get(category);
             
             if (analysis == null) {
-                analysis = new CategoryAnalysis(categoryId);
-                categoryAnalysis.put(categoryId, analysis);
+                analysis = new CategoryAnalysis(category);
+                categoryAnalysis.put(category, analysis);
             }
             
             analysis.addExpenditure(exp);
@@ -78,166 +60,143 @@ public class FinancialAnalysis {
     }
     
     /**
-     * Analyzes spending by vendor.
+     * Calculates monthly spending for a specific year.
      */
-    public static Map<String, VendorAnalysis> analyzeByVendor(Expenditure[] expenditures) {
-        Map<String, VendorAnalysis> vendorAnalysis = new HashMap<>();
+    public static Map<String, Double> calculateMonthlySpending(Expenditure[] expenditures, int year) {
+        Map<String, Double> monthlySpending = new HashMap<>();
+        Calendar calendar = Calendar.getInstance();
         
-        for (Expenditure exp : expenditures) {
-            String vendor = exp.getVendor();
-            VendorAnalysis analysis = vendorAnalysis.get(vendor);
-            
-            if (analysis == null) {
-                analysis = new VendorAnalysis(vendor);
-                vendorAnalysis.put(vendor, analysis);
-            }
-            
-            analysis.addExpenditure(exp);
+        // Initialize all months
+        String[] months = {"January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"};
+        for (String month : months) {
+            monthlySpending.put(month, 0.0);
         }
         
-        return vendorAnalysis;
+        for (Expenditure exp : expenditures) {
+            calendar.setTime(exp.getDate());
+            int expYear = calendar.get(Calendar.YEAR);
+            
+            if (expYear == year) {
+                int month = calendar.get(Calendar.MONTH);
+                String monthName = months[month];
+                Double currentTotal = monthlySpending.get(monthName);
+                monthlySpending.put(monthName, currentTotal + exp.getAmount());
+            }
+        }
+        
+        return monthlySpending;
     }
     
     /**
      * Projects future spending based on historical data.
      */
-    public static BigDecimal projectFutureSpending(Expenditure[] expenditures, LocalDate startDate, LocalDate endDate, int futureDays) {
-        BigDecimal dailyAverage = calculateBurnRate(expenditures, startDate, endDate);
-        return dailyAverage.multiply(BigDecimal.valueOf(futureDays));
+    public static double projectFutureSpending(Expenditure[] expenditures, Date startDate, Date endDate, int futureDays) {
+        double burnRate = calculateBurnRate(expenditures, startDate, endDate);
+        return burnRate * futureDays;
     }
     
     /**
-     * Calculates budget variance (actual vs planned).
+     * Calculates budget variance.
      */
-    public static BigDecimal calculateBudgetVariance(Expenditure[] expenditures, BigDecimal plannedBudget, LocalDate startDate, LocalDate endDate) {
-        BigDecimal actualSpending = BigDecimal.ZERO;
+    public static double calculateBudgetVariance(Expenditure[] expenditures, double plannedBudget, Date startDate, Date endDate) {
+        double totalSpent = 0.0;
         
         for (Expenditure exp : expenditures) {
-            LocalDate expDate = exp.getDate();
-            if (!expDate.isBefore(startDate) && !expDate.isAfter(endDate)) {
-                actualSpending = actualSpending.add(exp.getAmount());
+            Date expDate = exp.getDate();
+            if (!expDate.before(startDate) && !expDate.after(endDate)) {
+                totalSpent += exp.getAmount();
             }
         }
         
-        return actualSpending.subtract(plannedBudget);
+        return totalSpent - plannedBudget;
     }
     
     /**
-     * Identifies spending trends over time.
+     * Analyzes trends in spending over time.
      */
-    public static TrendAnalysis analyzeTrends(Expenditure[] expenditures, LocalDate startDate, LocalDate endDate) {
-        // Sort expenditures by date
-        Expenditure[] sortedExpenditures = Arrays.copyOf(expenditures, expenditures.length);
-        Arrays.sort(sortedExpenditures, Comparator.comparing(Expenditure::getDate));
+    public static TrendAnalysis analyzeTrends(Expenditure[] expenditures, Date startDate, Date endDate) {
+        List<Double> weeklySpending = new ArrayList<>();
         
-        List<BigDecimal> weeklySpending = new ArrayList<>();
-        LocalDate currentWeekStart = startDate;
+        // Calculate weekly spending
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startDate);
         
-        while (!currentWeekStart.isAfter(endDate)) {
-            LocalDate weekEnd = currentWeekStart.plusDays(6);
-            if (weekEnd.isAfter(endDate)) {
-                weekEnd = endDate;
-            }
+        while (cal.getTime().before(endDate)) {
+            Date weekStart = cal.getTime();
+            cal.add(Calendar.DAY_OF_MONTH, 7);
+            Date weekEnd = cal.getTime().after(endDate) ? endDate : cal.getTime();
             
-            BigDecimal weeklyAmount = BigDecimal.ZERO;
-            for (Expenditure exp : sortedExpenditures) {
-                LocalDate expDate = exp.getDate();
-                if (!expDate.isBefore(currentWeekStart) && !expDate.isAfter(weekEnd)) {
-                    weeklyAmount = weeklyAmount.add(exp.getAmount());
+            double weeklyAmount = 0.0;
+            for (Expenditure exp : expenditures) {
+                Date expDate = exp.getDate();
+                if (!expDate.before(weekStart) && expDate.before(weekEnd)) {
+                    weeklyAmount += exp.getAmount();
                 }
             }
             
             weeklySpending.add(weeklyAmount);
-            currentWeekStart = currentWeekStart.plusWeeks(1);
         }
         
-        return new TrendAnalysis(weeklySpending, calculateTrend(weeklySpending));
+        // Determine trend direction
+        TrendDirection trendDirection = TrendDirection.STABLE;
+        if (weeklySpending.size() >= 2) {
+            double firstWeek = weeklySpending.get(0);
+            double lastWeek = weeklySpending.get(weeklySpending.size() - 1);
+            
+            if (lastWeek > firstWeek * 1.1) {
+                trendDirection = TrendDirection.INCREASING;
+            } else if (lastWeek < firstWeek * 0.9) {
+                trendDirection = TrendDirection.DECREASING;
+            }
+        }
+        
+        return new TrendAnalysis(weeklySpending, trendDirection);
     }
     
     /**
-     * Calculates the top spending categories.
+     * Gets top spending categories.
      */
     public static List<CategorySummary> getTopSpendingCategories(Expenditure[] expenditures, int topN) {
-        Map<String, BigDecimal> categoryTotals = new HashMap<>();
+        Map<String, Double> categoryTotals = new HashMap<>();
         
         for (Expenditure exp : expenditures) {
-            String categoryId = exp.getCategoryId();
-            BigDecimal currentTotal = categoryTotals.getOrDefault(categoryId, BigDecimal.ZERO);
-            categoryTotals.put(categoryId, currentTotal.add(exp.getAmount()));
+            String category = exp.getCategory();
+            Double currentTotal = categoryTotals.getOrDefault(category, 0.0);
+            categoryTotals.put(category, currentTotal + exp.getAmount());
         }
         
         List<CategorySummary> summaries = new ArrayList<>();
-        for (Map.Entry<String, BigDecimal> entry : categoryTotals.entrySet()) {
+        for (Map.Entry<String, Double> entry : categoryTotals.entrySet()) {
             summaries.add(new CategorySummary(entry.getKey(), entry.getValue()));
         }
         
-        // Sort by amount descending
-        summaries.sort((a, b) -> b.getTotalAmount().compareTo(a.getTotalAmount()));
+        // Sort by total amount (descending)
+        summaries.sort((a, b) -> Double.compare(b.getTotalAmount(), a.getTotalAmount()));
         
+        // Return top N
         return summaries.subList(0, Math.min(topN, summaries.size()));
     }
     
     /**
-     * Calculates spending efficiency metrics.
+     * Calculates efficiency metrics.
      */
-    public static EfficiencyMetrics calculateEfficiencyMetrics(Expenditure[] expenditures, LocalDate startDate, LocalDate endDate) {
-        BigDecimal totalSpent = BigDecimal.ZERO;
+    public static EfficiencyMetrics calculateEfficiencyMetrics(Expenditure[] expenditures, Date startDate, Date endDate) {
+        double totalSpent = 0.0;
         int transactionCount = 0;
-        Set<String> uniqueVendors = new HashSet<>();
+        Set<String> uniquePhases = new HashSet<>();
         
         for (Expenditure exp : expenditures) {
-            LocalDate expDate = exp.getDate();
-            if (!expDate.isBefore(startDate) && !expDate.isAfter(endDate)) {
-                totalSpent = totalSpent.add(exp.getAmount());
+            Date expDate = exp.getDate();
+            if (!expDate.before(startDate) && !expDate.after(endDate)) {
+                totalSpent += exp.getAmount();
                 transactionCount++;
-                uniqueVendors.add(exp.getVendor());
+                uniquePhases.add(exp.getPhase());
             }
         }
         
-        BigDecimal averageTransactionAmount = transactionCount > 0 ? 
-            totalSpent.divide(BigDecimal.valueOf(transactionCount), 2, java.math.RoundingMode.HALF_UP) : 
-            BigDecimal.ZERO;
+        double averageTransactionAmount = transactionCount > 0 ? totalSpent / transactionCount : 0.0;
         
-        return new EfficiencyMetrics(totalSpent, transactionCount, uniqueVendors.size(), averageTransactionAmount);
-    }
-    
-    /**
-     * Calculates simple trend direction from a list of values.
-     */
-    private static TrendDirection calculateTrend(List<BigDecimal> values) {
-        if (values.size() < 2) {
-            return TrendDirection.STABLE;
-        }
-        
-        BigDecimal firstHalfSum = BigDecimal.ZERO;
-        BigDecimal secondHalfSum = BigDecimal.ZERO;
-        
-        int midPoint = values.size() / 2;
-        
-        for (int i = 0; i < midPoint; i++) {
-            firstHalfSum = firstHalfSum.add(values.get(i));
-        }
-        
-        for (int i = midPoint; i < values.size(); i++) {
-            secondHalfSum = secondHalfSum.add(values.get(i));
-        }
-        
-        BigDecimal avgFirst = firstHalfSum.divide(BigDecimal.valueOf(midPoint), 2, java.math.RoundingMode.HALF_UP);
-        BigDecimal avgSecond = secondHalfSum.divide(BigDecimal.valueOf(values.size() - midPoint), 2, java.math.RoundingMode.HALF_UP);
-        
-        BigDecimal difference = avgSecond.subtract(avgFirst);
-        BigDecimal threshold = avgFirst.multiply(BigDecimal.valueOf(0.1)); // 10% threshold
-        
-        if (difference.compareTo(threshold) > 0) {
-            return TrendDirection.INCREASING;
-        } else if (difference.compareTo(threshold.negate()) < 0) {
-            return TrendDirection.DECREASING;
-        } else {
-            return TrendDirection.STABLE;
-        }
-    }
-    
-    public enum TrendDirection {
-        INCREASING, DECREASING, STABLE
+        return new EfficiencyMetrics(totalSpent, transactionCount, uniquePhases.size(), averageTransactionAmount);
     }
 }

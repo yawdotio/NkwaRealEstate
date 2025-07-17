@@ -1,3 +1,18 @@
-# Receipts data file
-# Format: receiptId,receiptNumber,receiptDate,amount,vendor,description,expenditureId,status,filePath
-# Example: REC001,12345,2024-01-15,125.50,Staples,Office supplies purchase,EXP001,VALIDATED,/receipts/staples_12345.pdf
+REC001,INV-2025-001,15-06-2025,45000.0,Lagos Cement Company,Premium Portland Cement - 500 bags,EXP001,VALIDATED,receipts/REC001.pdf
+REC002,INV-2025-002,16-06-2025,32000.0,Buildwell Materials,Fine Sand - 20 tons,EXP002,VALIDATED,receipts/REC002.pdf
+REC003,INV-2025-003,17-06-2025,28000.0,Stone Quarry Ltd,Granite Gravel - 15 tons,EXP003,VALIDATED,receipts/REC003.pdf
+REC004,INV-2025-004,18-06-2025,85000.0,Steel Works Nigeria,Reinforcement Steel Bars - 10 tons,EXP004,VALIDATED,receipts/REC004.pdf
+REC005,INV-2025-005,19-06-2025,120000.0,Block Factory Ltd,Concrete Blocks - 2000 pieces,EXP005,VALIDATED,receipts/REC005.pdf
+REC006,INV-2025-006,20-06-2025,75000.0,Roofing Solutions,Aluminum Roofing Sheets - 100 sheets,EXP006,VALIDATED,receipts/REC006.pdf
+REC007,INV-2025-007,21-06-2025,55000.0,Plumbing Pro,PVC Pipes and Fittings,EXP007,VALIDATED,receipts/REC007.pdf
+REC008,INV-2025-008,22-06-2025,90000.0,Electric Power Co,Electrical Wiring and Components,EXP008,VALIDATED,receipts/REC008.pdf
+REC009,INV-2025-009,23-06-2025,38000.0,Paint Masters,Exterior Paint - 50 gallons,EXP009,VALIDATED,receipts/REC009.pdf
+REC010,INV-2025-010,24-06-2025,95000.0,Ceramic Tiles Ltd,Floor and Wall Tiles - 500 sq ft,EXP010,VALIDATED,receipts/REC010.pdf
+REC011,INV-2025-011,25-06-2025,65000.0,Timber Merchants,Hardwood Lumber - 2 cubic meters,EXP011,VALIDATED,receipts/REC011.pdf
+REC012,INV-2025-012,26-06-2025,42000.0,Hardware Store,Construction Hardware and Tools,EXP012,VALIDATED,receipts/REC012.pdf
+REC013,INV-2025-013,27-06-2025,180000.0,Excavation Services,Site Excavation and Grading,EXP013,VALIDATED,receipts/REC013.pdf
+REC014,INV-2025-014,28-06-2025,75000.0,Transport Solutions,Material Transportation Services,EXP014,VALIDATED,receipts/REC014.pdf
+REC015,INV-2025-015,29-06-2025,135000.0,Construction Crew,Labor for Foundation Work,EXP015,VALIDATED,receipts/REC015.pdf
+REC016,INV-2025-016,30-06-2025,68000.0,Lagos Cement Company,Premium Portland Cement - 350 bags,EXP016,VALIDATED,receipts/REC016.pdf
+REC017,INV-2025-017,01-07-2025,45000.0,Buildwell Materials,Fine Sand - 15 tons,EXP017,VALIDATED,receipts/REC017.pdf
+REC018,INV-2025-018,02-07-2025,52000.0,Stone Quarry Ltd,Granite Gravel - 18 tons,EXP018,VALIDATED,receipts/REC018.pdf

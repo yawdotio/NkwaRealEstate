@@ -1,3 +1,4 @@
-# Accounts data file
-# Format: accountId,accountName,accountType,balance,bankName
-ACC001,Main Business Account,Checking,15000.00,GCB
+ACC001|First Bank Ltd|250000.0|EXP001,EXP002,EXP003,EXP004,EXP005
+ACC002|Unity Bank|180000.0|EXP006,EXP007,EXP008,EXP009
+ACC003|Standard Bank|320000.0|EXP010,EXP011,EXP012,EXP013,EXP014,EXP015
+ACC004|Commercial Bank|150000.0|EXP016,EXP017,EXP018

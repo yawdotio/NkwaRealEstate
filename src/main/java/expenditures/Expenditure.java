@@ -1,76 +1,77 @@
 package expenditures;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 
 /**
- * Represents an expenditure record in the system.
- * Links to account and category information.
+ * Represents a single expenditure record made by the company.
+ * It contains key details such as amount, phase, category, and the bank account used.
  */
 public class Expenditure {
-    private String expenditureId;
-    private String description;
-    private BigDecimal amount;
-    private LocalDate date;
-    private String accountId;
-    private String categoryId;
-    private String vendor;
-    private String projectId;
+    private String code;          // Unique code to identify expenditure
+    private double amount;        // Amount spent
+    private Date date;            // Date of the transaction
+    private String phase;         // Phase: construction, marketing, sales, etc.
+    private String category;      // E.g., Cement, Printing, Advertising
+    private String accountId;     // ID of the bank account used
+    private String receiptPath;   // Optional path to receipt/invoice file
     
-    public Expenditure(String expenditureId, String description, BigDecimal amount, LocalDate date, 
-                      String accountId, String categoryId, String vendor, String projectId) {
-        this.expenditureId = expenditureId;
-        this.description = description;
+    // Constructor to initialize expenditure
+    public Expenditure(String code, double amount, Date date, String phase,
+                       String category, String accountId, String receiptPath) {
+        this.code = code;
         this.amount = amount;
         this.date = date;
+        this.phase = phase;
+        this.category = category;
         this.accountId = accountId;
-        this.categoryId = categoryId;
-        this.vendor = vendor;
-        this.projectId = projectId;
+        this.receiptPath = receiptPath;
     }
     
-    // Getters and setters
-    public String getExpenditureId() { return expenditureId; }
-    public void setExpenditureId(String expenditureId) { this.expenditureId = expenditureId; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
-    
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
-    
+    // Getters
+    public String getCode() { return code; }
+    public double getAmount() { return amount; }
+    public Date getDate() { return date; }
+    public String getPhase() { return phase; }
+    public String getCategory() { return category; }
     public String getAccountId() { return accountId; }
-    public void setAccountId(String accountId) { this.accountId = accountId; }
-    
-    public String getCategoryId() { return categoryId; }
-    public void setCategoryId(String categoryId) { this.categoryId = categoryId; }
-    
-    public String getVendor() { return vendor; }
-    public void setVendor(String vendor) { this.vendor = vendor; }
-    
-    public String getProjectId() { return projectId; }
-    public void setProjectId(String projectId) { this.projectId = projectId; }
+    public String getReceiptPath() { return receiptPath; }
+
+    // Setters
+    public void setReceiptPath(String receiptPath) {
+        this.receiptPath = receiptPath;
+    }
+
+    // Format the date nicely for reports or display
+    public String getFormattedDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        return formatter.format(date);
+    }
     
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Expenditure that = (Expenditure) o;
-        return Objects.equals(expenditureId, that.expenditureId);
+        return Objects.equals(code, that.code);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(expenditureId);
+        return Objects.hash(code);
     }
     
+    // Convert object to readable string format
     @Override
     public String toString() {
-        return String.format("Expenditure{id='%s', description='%s', amount=%s, date=%s, account='%s', category='%s', vendor='%s', project='%s'}", 
-                           expenditureId, description, amount, date, accountId, categoryId, vendor, projectId);
+        return "Expenditure [" +
+               "Code: " + code +
+               ", Amount: GHS " + amount +
+               ", Date: " + getFormattedDate() +
+               ", Phase: " + phase +
+               ", Category: " + category +
+               ", Account ID: " + accountId +
+               "]";
     }
 }
